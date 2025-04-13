@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Untukmu</title>
+    <style>
+        :root {
+            --primary: #6d28d9;
+            --primary-light: #8b5cf6;
+            --secondary: #ec4899;
+            --background: #f5f5f5;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f472b6;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .message-container.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .heart {
+            color: var(--secondary);
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .typing-effect {
+            overflow: hidden;
+            border-right: 3px solid var(--primary);
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary) }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .contact-btn {
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .contact-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .whatsapp-btn {
+            background-color: #25D366;
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+        }
+
+        .email-btn {
+            background-color: #EA4335;
+        }
+
+        .email-btn:hover {
+            background-color: #D73025;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .qr-code {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .contact-methods {
+                flex-direction: column;
+            }
+
+            .contact-btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="typing-effect">Pesan Untukmu</h1>
+            <p>Ada sesuatu yang ingin aku sampaikan kepadamu. Klik tombol di bawah untuk melihat pesannya.</p>
+            
+            <div class="buttons-container">
+                <button class="btn" id="openMessage">Buka Pesan</button>
+                <button class="btn btn-secondary" id="openFull">Baca Pesan Lengkap</button>
+                <button class="btn btn-outline" id="showOptions">Pilihan Lainnya</button>
+            </div>
+        </div>
+        
+        <div class="card message-container" id="messageCard1">
+            <h2>Bagian 1</h2>
+            <p>"Hai, maaf kalau akhir-akhir ini aku keliatan kaya ngespam atau sering banget ngehubungin kamu. Aku tahu mungkin terasa agak aneh, apalagi setelah kita udah lama nggak komunikasi kayak dulu."</p>
+            <div class="buttons-container">
+                <button class="btn" id="nextMessage1">Lanjutkan</button>
+                <button class="btn btn-outline" id="backToMain1">Kembali</button>
+            </div>
+        </div>
+        
+        <div class="card message-container" id="messageCard2">
+            <h2>Bagian 2</h2>
+            <p>"Sebenarnya, aku cuma pengen jujur aja—dulu waktu kita sempat deket, walaupun cuma lewat online, aku ngerasa ada ketertarikan sama kamu. Dan entah kenapa, perasaan itu nggak sepenuhnya hilang. Mungkin karena itu juga aku jadi kaya ngelakuin pendekatan lagi sekarang."</p>
+            <div class="buttons-container">
+                <button class="btn" id="nextMessage2">Lanjutkan</button>
+                <button class="btn btn-outline" id="backToMessage1">Kembali</button>
+            </div>
+        </div>
+        
+        <div class="card message-container" id="messageCard3">
+            <h2>Bagian 3</h2>
+            <p>"Tapi aku juga sadar, aku nggak mau jadi gangguan dalam hidup kamu. Jadi kalau memang keberadaan aku bikin kamu risih, atau kamu udah punya seseorang yang spesial, tolong bilang aja ya. Aku akan ngerti dan nggak maksa."</p>
+            <div class="buttons-container">
+                <button class="btn" id="nextMessage3">Lanjutkan</button>
+                <button class="btn btn-outline" id="backToMessage2">Kembali</button>
+            </div>
+        </div>
+        
+        <div class="card message-container" id="messageCard4">
+            <h2>Bagian 4</h2>
+            <p>"Yang penting aku udah ngomong apa yang aku rasain, selebihnya aku serahin ke kamu. <span class="heart">❤️</span>"</p>
+            <div class="buttons-container">
+                <button class="btn btn-secondary" id="showResponse">Berikan Respon</button>
+                <button class="btn btn-outline" id="backToMessage3">Kembali</button>
+                <button class="btn" id="backToMainFinal">Menu Utama</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="fullMessageModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeFullMessage">&times;</button>
+            <h2>Pesan Lengkap</h2>
+            <p>"Hai, maaf kalau akhir-akhir ini aku keliatan kaya ngespam atau sering banget ngehubungin kamu. Aku tahu mungkin terasa agak aneh, apalagi setelah kita udah lama nggak komunikasi kayak dulu.</p>
+            <p>Sebenarnya, aku cuma pengen jujur aja—dulu waktu kita sempat deket, walaupun cuma lewat online, aku ngerasa ada ketertarikan sama kamu. Dan entah kenapa, perasaan itu nggak sepenuhnya hilang. Mungkin karena itu juga aku jadi kaya ngelakuin pendekatan lagi sekarang.</p>
+            <p>Tapi aku juga sadar, aku nggak mau jadi gangguan dalam hidup kamu. Jadi kalau memang keberadaan aku bikin kamu risih, atau kamu udah punya seseorang yang spesial, tolong bilang aja ya. Aku akan ngerti dan nggak maksa.</p>
+            <p>Yang penting aku udah ngomong apa yang aku rasain, selebihnya aku serahin ke kamu. <span class="heart">❤️</span>"</p>
+        </div>
+    </div>
+    
+    <div class="modal" id="optionsModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeOptions">&times;</button>
+            <h2>Pilihan Lainnya</h2>
+            <div class="buttons-container">
+                <button class="btn" id="changeTheme">Ubah Tema</button>
+                <button class="btn btn-secondary" id="shareMessage">Bagikan Pesan</button>
+                <button class="btn btn-outline" id="saveMessage">Simpan Pesan</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="responseModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeResponse">&times;</button>
+            <h2>Berikan Respon</h2>
+            <p>Bagaimana perasaanmu setelah membaca pesan ini?</p>
+            <div class="buttons-container">
+                <button class="btn" id="positiveResponse">Aku Juga Merasakan Hal yang Sama</button>
+                <button class="btn btn-secondary" id="neutralResponse">Aku Butuh Waktu untuk Berpikir</button>
+                <button class="btn btn-outline" id="negativeResponse">Maaf, Aku Tidak Merasakan Hal yang Sama</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="themeModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeTheme">&times;</button>
+            <h2>Pilih Tema</h2>
+            <div class="buttons-container">
+                <button class="btn" id="themePurple">Ungu</button>
+                <button class="btn btn-secondary" id="themeBlue">Biru</button>
+                <button class="btn" style="background-color: #10b981;" id="themeGreen">Hijau</button>
+                <button class="btn" style="background-color: #f59e0b;" id="themeOrange">Oranye</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeShare">&times;</button>
+            <h2>Bagikan Pesan</h2>
+            <p>Salin tautan di bawah ini untuk membagikan pesan:</p>
+            <input type="text" value="https://pesan-untukmu.com/share/123456" style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd;">
+            <div class="buttons-container">
+                <button class="btn" id="copyLink">Salin Tautan</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeSave">&times;</button>
+            <h2>Pesan Disimpan</h2>
+            <p>Pesan telah disimpan ke perangkatmu.</p>
+        </div>
+    </div>
+    
+    <div class="modal" id="responseResultModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeResponseResult">&times;</button>
+            <h2 id="responseResultTitle">Terima Kasih</h2>
+            <p id="responseResultMessage">Terima kasih atas responmu.</p>
+            <div class="buttons-container">
+                <button class="btn btn-secondary" id="sendResponseBtn">Kirim Respon Langsung</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Modal for Contact Methods -->
+    <div class="modal" id="contactMethodsModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeContactMethods">&times;</button>
+            <h2>Kirim Respon Langsung</h2>
+            <div class="form-group">
+                <label for="senderName">Nama Kamu</label>
+                <input type="text" id="senderName" placeholder="Masukkan nama kamu">
+            </div>
+            <div class="form-group">
+                <label for="customMessage">Pesan Kamu</label>
+                <textarea id="customMessage" placeholder="Tulis pesan kamu di sini..."></textarea>
+            </div>
+            <p>Pilih cara untuk mengirim pesan:</p>
+            <div class="contact-methods">
+                <button class="contact-btn whatsapp-btn" id="whatsappBtn">
+                    <i class="fab fa-whatsapp icon"></i>
+                    <span>WhatsApp</span>
+                </button>
+                <button class="contact-btn email-btn" id="emailBtn">
+                    <i class="far fa-envelope icon"></i>
+                    <span>Email</span>
+                </button>
+            </div>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <p>Mengirim pesan...</p>
+            </div>
+            
+            <p class="success-message" id="successMessage">Pesan berhasil dikirim!</p>
+            <p class="error-message" id="errorMessage">Gagal mengirim pesan. Silakan coba lagi.</p>
+            
+            <div class="qr-code" id="whatsappQR" style="display: none;">
+                <h3>Scan QR Code untuk WhatsApp</h3>
+                <div id="qrCodeContainer"></div>
+                <p>Atau klik tombol di bawah untuk membuka WhatsApp</p>
+                <button class="btn whatsapp-btn" id="openWhatsAppBtn">
+                    <i class="fab fa-whatsapp"></i> Buka WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    
+    <script>
+        // Elements
+        const openMessageBtn = document.getElementById('openMessage');
+        const openFullBtn = document.getElementById('openFull');
+        const showOptionsBtn = document.getElementById('showOptions');
+        const messageCard1 = document.getElementById('messageCard1');
+        const messageCard2 = document.getElementById('messageCard2');
+        const messageCard3 = document.getElementById('messageCard3');
+        const messageCard4 = document.getElementById('messageCard4');
+        const nextMessage1Btn = document.getElementById('nextMessage1');
+        const nextMessage2Btn = document.getElementById('nextMessage2');
+        const nextMessage3Btn = document.getElementById('nextMessage3');
+        const backToMain1Btn = document.getElementById('backToMain1');
+        const backToMessage1Btn = document.getElementById('backToMessage1');
+        const backToMessage2Btn = document.getElementById('backToMessage2');
+        const backToMessage3Btn = document.getElementById('backToMessage3');
+        const backToMainFinalBtn = document.getElementById('backToMainFinal');
+        const fullMessageModal = document.getElementById('fullMessageModal');
+        const closeFullMessageBtn = document.getElementById('closeFullMessage');
+        const optionsModal = document.getElementById('optionsModal');
+        const closeOptionsBtn = document.getElementById('closeOptions');
+        const changeThemeBtn = document.getElementById('changeTheme');
+        const shareMessageBtn = document.getElementById('shareMessage');
+        const saveMessageBtn = document.getElementById('saveMessage');
+        const themeModal = document.getElementById('themeModal');
+        const closeThemeBtn = document.getElementById('closeTheme');
+        const themePurpleBtn = document.getElementById('themePurple');
+        const themeBlueBtn = document.getElementById('themeBlue');
+        const themeGreenBtn = document.getElementById('themeGreen');
+        const themeOrangeBtn = document.getElementById('themeOrange');
+        const shareModal = document.getElementById('shareModal');
+        const closeShareBtn = document.getElementById('closeShare');
+        const copyLinkBtn = document.getElementById('copyLink');
+        const saveModal = document.getElementById('saveModal');
+        const closeSaveBtn = document.getElementById('closeSave');
+        const showResponseBtn = document.getElementById('showResponse');
+        const responseModal = document.getElementById('responseModal');
+        const closeResponseBtn = document.getElementById('closeResponse');
+        const positiveResponseBtn = document.getElementById('positiveResponse');
+        const neutralResponseBtn = document.getElementById('neutralResponse');
+        const negativeResponseBtn = document.getElementById('negativeResponse');
+        const responseResultModal = document.getElementById('responseResultModal');
+        const closeResponseResultBtn = document.getElementById('closeResponseResult');
+        const responseResultTitle = document.getElementById('responseResultTitle');
+        const responseResultMessage = document.getElementById('responseResultMessage');
+        const sendResponseBtn = document.getElementById('sendResponseBtn');
+        
+        // New elements for contact methods
+        const contactMethodsModal = document.getElementById('contactMethodsModal');
+        const closeContactMethodsBtn = document.getElementById('closeContactMethods');
+        const senderNameInput = document.getElementById('senderName');
+        const customMessageInput = document.getElementById('customMessage');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const emailBtn = document.getElementById('emailBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const whatsappQR = document.getElementById('whatsappQR');
+        const qrCodeContainer = document.getElementById('qrCodeContainer');
+        const openWhatsAppBtn = document.getElementById('openWhatsAppBtn');
+
+        // Contact information - FIXED: Added country code and removed leading 0
+        const phoneNumber = "6285641592290"; // Indonesian number with country code
+        const email = "dedenh842@gmail.com";
+        
+        // Response types
+        let currentResponseType = "";
+        let whatsappUrl = "";
+
+        // Functions to show/hide message cards
+        function showMessageCard(card) {
+            // Hide all message cards
+            messageCard1.classList.remove('active');
+            messageCard2.classList.remove('active');
+            messageCard3.classList.remove('active');
+            messageCard4.classList.remove('active');
+            
+            // Show the selected card
+            card.classList.add('active');
+        }
+
+        // Functions to show/hide modals
+        function showModal(modal) {
+            modal.classList.add('active');
+        }
+
+        function hideModal(modal) {
+            modal.classList.remove('active');
+        }
+
+        // Event listeners for buttons
+        openMessageBtn.addEventListener('click', () => {
+            showMessageCard(messageCard1);
+        });
+
+        openFullBtn.addEventListener('click', () => {
+            showModal(fullMessageModal);
+        });
+
+        showOptionsBtn.addEventListener('click', () => {
+            showModal(optionsModal);
+        });
+
+        nextMessage1Btn.addEventListener('click', () => {
+            showMessageCard(messageCard2);
+        });
+
+        nextMessage2Btn.addEventListener('click', () => {
+            showMessageCard(messageCard3);
+        });
+
+        nextMessage3Btn.addEventListener('click', () => {
+            showMessageCard(messageCard4);
+        });
+
+        backToMain1Btn.addEventListener('click', () => {
+            messageCard1.classList.remove('active');
+        });
+
+        backToMessage1Btn.addEventListener('click', () => {
+            showMessageCard(messageCard1);
+        });
+
+        backToMessage2Btn.addEventListener('click', () => {
+            showMessageCard(messageCard2);
+        });
+
+        backToMessage3Btn.addEventListener('click', () => {
+            showMessageCard(messageCard3);
+        });
+
+        backToMainFinalBtn.addEventListener('click', () => {
+            messageCard4.classList.remove('active');
+        });
+
+        closeFullMessageBtn.addEventListener('click', () => {
+            hideModal(fullMessageModal);
+        });
+
+        closeOptionsBtn.addEventListener('click', () => {
+            hideModal(optionsModal);
+        });
+
+        changeThemeBtn.addEventListener('click', () => {
+            hideModal(optionsModal);
+            showModal(themeModal);
+        });
+
+        shareMessageBtn.addEventListener('click', () => {
+            hideModal(optionsModal);
+            showModal(shareModal);
+        });
+
+        saveMessageBtn.addEventListener('click', () => {
+            hideModal(optionsModal);
+            showModal(saveModal);
+            setTimeout(() => {
+                hideModal(saveModal);
+            }, 2000);
+        });
+
+        closeThemeBtn.addEventListener('click', () => {
+            hideModal(themeModal);
+        });
+
+        closeShareBtn.addEventListener('click', () => {
+            hideModal(shareModal);
+        });
+
+        closeSaveBtn.addEventListener('click', () => {
+            hideModal(saveModal);
+        });
+
+        showResponseBtn.addEventListener('click', () => {
+            showModal(responseModal);
+        });
+
+        closeResponseBtn.addEventListener('click', () => {
+            hideModal(responseModal);
+        });
+
+        closeResponseResultBtn.addEventListener('click', () => {
+            hideModal(responseResultModal);
+        });
+
+        // Theme changing functionality
+        themePurpleBtn.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary', '#6d28d9');
+            document.documentElement.style.setProperty('--primary-light', '#8b5cf6');
+            document.documentElement.style.setProperty('--secondary', '#ec4899');
+            hideModal(themeModal);
+        });
+
+        themeBlueBtn.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary', '#2563eb');
+            document.documentElement.style.setProperty('--primary-light', '#3b82f6');
+            document.documentElement.style.setProperty('--secondary', '#0ea5e9');
+            hideModal(themeModal);
+        });
+
+        themeGreenBtn.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary', '#10b981');
+            document.documentElement.style.setProperty('--primary-light', '#34d399');
+            document.documentElement.style.setProperty('--secondary', '#059669');
+            hideModal(themeModal);
+        });
+
+        themeOrangeBtn.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary', '#f59e0b');
+            document.documentElement.style.setProperty('--primary-light', '#fbbf24');
+            document.documentElement.style.setProperty('--secondary', '#d97706');
+            hideModal(themeModal);
+        });
+
+        // Copy link functionality
+        copyLinkBtn.addEventListener('click', () => {
+            const linkInput = document.querySelector('input[type="text"]');
+            linkInput.select();
+            document.execCommand('copy');
+            copyLinkBtn.textContent = 'Tautan Disalin!';
+            setTimeout(() => {
+                copyLinkBtn.textContent = 'Salin Tautan';
+                hideModal(shareModal);
+            }, 1500);
+        });
+
+        // Response handling
+        positiveResponseBtn.addEventListener('click', () => {
+            hideModal(responseModal);
+            currentResponseType = "positive";
+            responseResultTitle.textContent = 'Terima Kasih! ❤️';
+            responseResultMessage.textContent = 'Aku senang mendengarnya. Mari kita bicarakan lebih lanjut.';
+            showModal(responseResultModal);
+            
+            // Pre-fill the custom message for positive response
+            customMessageInput.value = "Hai, aku juga merasakan hal yang sama denganmu. Mari kita bicarakan lebih lanjut. 😊❤️";
+        });
+
+        neutralResponseBtn.addEventListener('click', () => {
+            hideModal(responseModal);
+            currentResponseType = "neutral";
+            responseResultTitle.textContent = 'Terima Kasih';
+            responseResultMessage.textContent = 'Aku mengerti. Ambil waktu yang kamu butuhkan untuk berpikir.';
+            showModal(responseResultModal);
+            
+            // Pre-fill the custom message for neutral response
+            customMessageInput.value = "Hai, terima kasih atas pesanmu. Aku butuh waktu untuk berpikir tentang hal ini. Bolehkah kita bicara lagi nanti?";
+        });
+
+        negativeResponseBtn.addEventListener('click', () => {
+            hideModal(responseModal);
+            currentResponseType = "negative";
+            responseResultTitle.textContent = 'Terima Kasih atas Kejujuranmu';
+            responseResultMessage.textContent = 'Aku menghargai kejujuranmu. Semoga kita tetap bisa berteman.';
+            showModal(responseResultModal);
+            
+            // Pre-fill the custom message for negative response
+            customMessageInput.value = "Hai, terima kasih atas kejujuranmu. Maaf, tapi aku tidak merasakan hal yang sama. Semoga kita tetap bisa berteman.";
+        });
+
+        // Send Response button
+        sendResponseBtn.addEventListener('click', () => {
+            hideModal(responseResultModal);
+            showModal(contactMethodsModal);
+        });
+
+        // Close contact methods modal
+        closeContactMethodsBtn.addEventListener('click', () => {
+            hideModal(contactMethodsModal);
+            whatsappQR.style.display = 'none';
+        });
+
+        // WhatsApp button
+        whatsappBtn.addEventListener('click', () => {
+            const name = senderNameInput.value || "Pengirim";
+            const message = customMessageInput.value || getDefaultMessage();
+            const encodedMessage = encodeURIComponent(`${message}\n\nDari: ${name}`);
+            whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            // Show QR code for WhatsApp
+            whatsappQR.style.display = 'flex';
+            generateQRCode(whatsappUrl);
+        });
+
+        // Open WhatsApp button
+        openWhatsAppBtn.addEventListener('click', () => {
+            window.open(whatsappUrl, '_blank');
+            showSuccessMessage();
+        });
+
+        // Email button
+        emailBtn.addEventListener('click', () => {
+            const name = senderNameInput.value || "Pengirim";
+            const message = customMessageInput.value || getDefaultMessage();
+            
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Send email using FormSubmit
+            sendEmailWithFormSubmit(name, message);
+        });
+
+        // Generate QR Code for WhatsApp
+        function generateQRCode(url) {
+            qrCodeContainer.innerHTML = '';
+            QRCode.toCanvas(qrCodeContainer, url, { width: 200 }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        // Send email using FormSubmit (free email service)
+        function sendEmailWithFormSubmit(name, message) {
+            // Create a form element
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://formsubmit.co/' + email;
+            form.style.display = 'none';
+            
+            // Add form fields
+            const nameField = document.createElement('input');
+            nameField.type = 'text';
+            nameField.name = 'name';
+            nameField.value = name;
+            
+            const messageField = document.createElement('textarea');
+            messageField.name = 'message';
+            messageField.value = message;
+            
+            const subjectField = document.createElement('input');
+            subjectField.type = 'text';
+            subjectField.name = '_subject';
+            subjectField.value = 'Respon untuk Pesanmu';
+            
+            // Add fields to form
+            form.appendChild(nameField);
+            form.appendChild(messageField);
+            form.appendChild(subjectField);
+            
+            // Add form to document, submit it, and remove it
+            document.body.appendChild(form);
+            
+            // Create an iframe to handle the form submission
+            const iframe = document.createElement('iframe');
+            iframe.name = 'hidden_iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            
+            // Set form target to iframe
+            form.target = 'hidden_iframe';
+            
+            // Handle success/error
+            iframe.onload = function() {
+                loadingIndicator.style.display = 'none';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                    hideModal(contactMethodsModal);
+                    whatsappQR.style.display = 'none';
+                }, 2000);
+            };
+            
+            iframe.onerror = function() {
+                loadingIndicator.style.display = 'none';
+                errorMessage.style.display = 'block';
+            };
+            
+            // Submit the form
+            form.submit();
+        }
+
+        // Get default message based on response type
+        function getDefaultMessage() {
+            switch(currentResponseType) {
+                case "positive":
+                    return "Hai, aku juga merasakan hal yang sama denganmu. Mari kita bicarakan lebih lanjut. 😊❤️";
+                case "neutral":
+                    return "Hai, terima kasih atas pesanmu. Aku butuh waktu untuk berpikir tentang hal ini. Bolehkah kita bicara lagi nanti?";
+                case "negative":
+                    return "Hai, terima kasih atas kejujuranmu. Maaf, tapi aku tidak merasakan hal yang sama. Semoga kita tetap bisa berteman.";
+                default:
+                    return "Terima kasih atas pesanmu. Ini adalah balasan dariku.";
+            }
+        }
+
+        // Show success message
+        function showSuccessMessage() {
+            successMessage.style.display = "block";
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                hideModal(contactMethodsModal);
+                whatsappQR.style.display = 'none';
+            }, 2000);
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === fullMessageModal) {
+                hideModal(fullMessageModal);
+            }
+            if (e.target === optionsModal) {
+                hideModal(optionsModal);
+            }
+            if (e.target === themeModal) {
+                hideModal(themeModal);
+            }
+            if (e.target === shareModal) {
+                hideModal(shareModal);
+            }
+            if (e.target === saveModal) {
+                hideModal(saveModal);
+            }
+            if (e.target === responseModal) {
+                hideModal(responseModal);
+            }
+            if (e.target === responseResultModal) {
+                hideModal(responseResultModal);
+            }
+            if (e.target === contactMethodsModal) {
+                hideModal(contactMethodsModal);
+                whatsappQR.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
